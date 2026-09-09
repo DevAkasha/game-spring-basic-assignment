@@ -6,6 +6,7 @@ import com.gamebasic.game.dto.*;
 import com.gamebasic.game.entity.Game;
 import com.gamebasic.game.repository.GameRepository;
 import com.gamebasic.runcard.dto.CardResponse;
+import com.gamebasic.runcard.dto.DeckCount;
 import com.gamebasic.runcard.dto.RunCardRequest;
 import com.gamebasic.runcard.entity.RunCard;
 import com.gamebasic.runcard.repository.RunCardRepository;
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -94,7 +97,13 @@ public class GameService {
      public List<GameSummaryResponse> getGames() {
         List<Game> games = gameRepository.findAllByOrderByIdDesc();
         List<GameSummaryResponse> gameSummaryResponseList = new ArrayList<>();
-        for (Game game : games) {
+        List<DeckCount> deckCounts = runCardRepository.countByGames();
+         Map<Long, Long> deckSizeMap = new HashMap<>();
+         for (DeckCount dc : deckCounts) {
+             deckSizeMap.put(dc.getGameId(), dc.getDeckSize());
+         }
+
+         for (Game game : games) {
             GameSummaryResponse gameSummaryResponse =  new GameSummaryResponse(
                     game.getId(),
                     game.getPlayerName(),
@@ -103,7 +112,8 @@ public class GameService {
                     game.getPhase(),
                     game.getStatus(),
                     game.getCreatedAt(),
-                    game.getUpdatedAt()
+                    game.getUpdatedAt(),
+                    deckSizeMap.getOrDefault(game.getId(), 0L)
             );
 
             gameSummaryResponseList.add(gameSummaryResponse);
