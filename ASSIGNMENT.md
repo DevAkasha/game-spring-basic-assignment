@@ -81,10 +81,74 @@
 
 ### Lv 7. 목록·상세 조회: 저장된 여정 이어하기 `필수`
 
-**API 명세 → [게임 목록 조회 `GET /games`](https://f-api.github.io/game-spring-api-docs/basic/api-docs.html#tag/게임/operation/getGames), [게임 상세 조회 `GET /games/{gameId}`](https://f-api.github.io/game-spring-api-docs/basic/api-docs.html#tag/게임/operation/getGame)**
+이 단계의 두 API는 아래 명세를 따릅니다. 전체 API 명세 문서에는 뒤 단계에서 붙는 필드가 더 있으므로, 이 단계에서는 아래 명세만 봅니다.
+
+**게임 목록 조회 `GET /games`** — 성공 `200`, `Game`의 `id` 기준 내림차순 배열
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | 숫자 | 게임 ID |
+| `playerName` | 문자열 | 플레이어 이름 |
+| `currentFloor` | 숫자 | 현재 층 |
+| `currentHp` | 숫자 | 현재 HP |
+| `phase` | 문자열 | `BATTLE`, `REWARD`, `FINISHED` 중 하나 |
+| `status` | 문자열 | `PLAYING`, `CLEARED`, `FAILED` 중 하나 |
+
+```json
+[
+  {
+    "id": 2,
+    "playerName": "붉은 순례자",
+    "currentFloor": 7,
+    "currentHp": 0,
+    "phase": "FINISHED",
+    "status": "FAILED"
+  },
+  {
+    "id": 1,
+    "playerName": "밤의 후계자",
+    "currentFloor": 4,
+    "currentHp": 61,
+    "phase": "BATTLE",
+    "status": "PLAYING"
+  }
+]
+```
+
+**게임 상세 조회 `GET /games/{gameId}`** — 성공 `200`, 없는 ID는 `404`
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | 숫자 | 게임 ID |
+| `playerName` | 문자열 | 플레이어 이름 |
+| `currentHp` | 숫자 | 현재 HP |
+| `currentFloor` | 숫자 | 현재 층 |
+| `phase` | 문자열 | `BATTLE`, `REWARD`, `FINISHED` 중 하나 |
+| `status` | 문자열 | `PLAYING`, `CLEARED`, `FAILED` 중 하나 |
+| `deck` | 배열 | 전체 덱. `RunCard`의 `id` 기준 오름차순 |
+| `deck[].id` | 숫자 | 카드 ID |
+| `deck[].cardType` | 문자열 | 카드 타입 |
+| `deck[].acquiredFloor` | 숫자 | 카드를 얻은 층. 시작 덱은 `0` |
+
+```json
+{
+  "id": 1,
+  "playerName": "밤의 후계자",
+  "currentHp": 61,
+  "currentFloor": 4,
+  "phase": "BATTLE",
+  "status": "PLAYING",
+  "deck": [
+    { "id": 1, "cardType": "STRIKE", "acquiredFloor": 0 },
+    { "id": 2, "cardType": "STRIKE", "acquiredFloor": 0 },
+    { "id": 3, "cardType": "HEART_PIERCE", "acquiredFloor": 0 },
+    { "id": 10, "cardType": "SUNDER", "acquiredFloor": 1 }
+  ]
+}
+```
 
 - [ ]  Spring Data JPA가 커스텀 쿼리 메서드로 정렬 조회를 만들어 주는 규칙(OrderBy, Asc, Desc)을 직접 검색해서 공부하시고 문제를 풀어주세요.
-- [ ]  아래의 코드를 이용하여 게임 목록 조회 API를 구현하세요. 응답 DTO `GameSummaryResponse`는 API 명세를 보고 새로 만듭니다. 게임 목록은 `Game`의 `id` 기준 내림차순입니다.
+- [ ]  아래의 코드를 이용하여 게임 목록 조회 API를 구현하세요. 응답 DTO `GameSummaryResponse`는 위 명세대로 새로 만듭니다.
 
     ```java
     @GetMapping("/games")
@@ -93,7 +157,7 @@
     }
     ```
 
-- [ ]  아래의 코드를 이용하여 게임 상세 조회 API를 구현하세요.
+- [ ]  아래의 코드를 이용하여 게임 상세 조회 API를 구현하세요. 응답 DTO `GameDetailResponse`는 제공되어 있습니다.
 
     ```java
     @GetMapping("/games/{gameId}")
@@ -101,8 +165,6 @@
         return ResponseEntity.ok(gameService.getGame(gameId));
     }
     ```
-
-    - [ ]  `GameDetailResponse`의 `List<CardResponse> deck`은 `RunCard`의 `id` 기준 오름차순입니다.
 
 - [ ]  확인: 새로 고쳐도 아래처럼 "저장된 여정"에 게임이 남아 있고, 선택하면 저장된 HP·층·덱이 그대로 이어집니다.
 
