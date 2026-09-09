@@ -39,7 +39,9 @@ public class GameService {
             game.getCurrentFloor(),
             game.getPhase(),
             game.getStatus(),
-            deck
+            deck,
+            game.getCreatedAt(),
+            game.getUpdatedAt()
         );
     }
 
@@ -82,11 +84,12 @@ public class GameService {
             game.getCurrentFloor(),
             game.getPhase(),
             game.getStatus(),
-            deck
+            deck,
+            game.getCreatedAt(),
+            game.getUpdatedAt()
         );
     }
 
-    // TODO (Lv 7): 게임 목록 조회. 주석을 풀고 구현하세요.
      @Transactional(readOnly = true)
      public List<GameSummaryResponse> getGames() {
         List<Game> games = gameRepository.findAllByOrderByIdDesc();
@@ -98,7 +101,9 @@ public class GameService {
                     game.getCurrentHp(),
                     game.getCurrentFloor(),
                     game.getPhase(),
-                    game.getStatus()
+                    game.getStatus(),
+                    game.getCreatedAt(),
+                    game.getUpdatedAt()
             );
 
             gameSummaryResponseList.add(gameSummaryResponse);
@@ -106,7 +111,6 @@ public class GameService {
         return gameSummaryResponseList;
      }
 
-    // TODO (Lv 7): 게임 상세 조회. 주석을 풀고 구현하세요.
      @Transactional(readOnly = true)
      public GameDetailResponse getGame(Long gameId) {
          Game game = findGame(gameId);
@@ -122,7 +126,9 @@ public class GameService {
                  game.getCurrentFloor(),
                  game.getPhase(),
                  game.getStatus(),
-                 deck
+                 deck,
+                 game.getCreatedAt(),
+                 game.getUpdatedAt()
          );
      }
 
